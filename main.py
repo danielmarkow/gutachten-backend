@@ -7,7 +7,7 @@ from sqlmodel import SQLModel, Session, select
 import uvicorn
 
 from db import engine, get_session
-from schemas import GutachtenInput, GutachenOutput, Gutachten, TextbausteinOutput, Textbaustein, TextbausteinInput
+from schemas import GutachtenInput, GutachenOutput, Gutachten, Theme, ThemeInput, ThemeOutput, GradeInput, GradeOutput, Grade
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -58,18 +58,27 @@ def update_gutachten_by_id(ga_id: str, new_data: GutachtenInput, session: Sessio
     else: 
         raise HTTPException(404, f"kein gutachten mit id={id}")
 
-@app.get("/api/textbaustein/")
-def get_textbausteine(session: Session = Depends(get_session)) -> list[TextbausteinOutput]:
-    query = select(Textbaustein)
+@app.get("/api/theme")
+def get_theme(session: Session = Depends(get_session)) -> list:
+    query = select(Theme)
     return session.exec(query).all()
 
-@app.post("/api/textbaustein/")
-def save_gutachten(tb: TextbausteinInput, session: Session = Depends(get_session)) -> TextbausteinOutput:
-    new_ga = Textbaustein.from_orm(tb)
-    session.add(new_ga)
+@app.post("/api/theme")
+def save_theme(th: ThemeInput, session: Session = Depends(get_session)) -> ThemeOutput:
+    new_th = Theme.from_orm(th)
+    session.add(new_th)
     session.commit()
-    session.refresh(new_ga)
-    return new_ga
+    session.refresh(new_th)
+    return new_th
+
+@app.post("/api/grade")
+def save_grade(gr: GradeInput, session: Session = Depends(get_session)) -> GradeOutput:
+    new_gr = Grade.from_orm(gr)
+    session.add(new_gr)
+    session.commit()
+    session.refresh(new_gr)
+    return new_gr
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
