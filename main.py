@@ -7,7 +7,7 @@ from sqlmodel import SQLModel, Session, select
 import uvicorn
 
 from db import engine, get_session
-from schemas import GutachtenInput, GutachenOutput, Gutachten
+from schemas import GutachtenInput, GutachenOutput, Gutachten, TextbausteinOutput, Textbaustein, TextbausteinInput
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,7 +26,7 @@ app.add_middleware(
     max_age=86400,
 )
 
-@app.get("/api/gutachten")
+@app.get("/api/gutachten/")
 def get_gutachten(session: Session = Depends(get_session)) -> list[GutachenOutput]:
     query = select(Gutachten)
     return session.exec(query).all()
@@ -57,6 +57,19 @@ def update_gutachten_by_id(ga_id: str, new_data: GutachtenInput, session: Sessio
         return gutachten
     else: 
         raise HTTPException(404, f"kein gutachten mit id={id}")
+
+@app.get("/api/textbaustein/")
+def get_textbausteine(session: Session = Depends(get_session)) -> list[TextbausteinOutput]:
+    query = select(Textbaustein)
+    return session.exec(query).all()
+
+@app.post("/api/textbaustein/")
+def save_gutachten(tb: TextbausteinInput, session: Session = Depends(get_session)) -> TextbausteinOutput:
+    new_ga = Textbaustein.from_orm(tb)
+    session.add(new_ga)
+    session.commit()
+    session.refresh(new_ga)
+    return new_ga
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
