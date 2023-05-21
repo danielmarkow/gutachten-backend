@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-# from typing import Any, Dict
+from typing import List
 
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -59,7 +59,7 @@ def update_gutachten_by_id(ga_id: str, new_data: GutachtenInput, session: Sessio
         raise HTTPException(404, f"kein gutachten mit id={id}")
 
 @app.get("/api/theme")
-def get_theme(session: Session = Depends(get_session)) -> list:
+def get_theme(session: Session = Depends(get_session)) -> List[ThemeOutput]:
     query = select(Theme)
     return session.exec(query).all()
 
