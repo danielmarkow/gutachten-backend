@@ -71,6 +71,18 @@ def save_theme(th: ThemeInput, session: Session = Depends(get_session)) -> Theme
     session.refresh(new_th)
     return new_th
 
+@app.put("/api/theme/{theme_id}")
+def update_theme_by_id(theme_id: str, new_data: ThemeInput, session: Session = Depends(get_session)) -> ThemeOutput:
+    theme = session.get(Theme, theme_id)
+    if theme:
+        theme.theme = new_data.theme
+        theme.differentiation = new_data.differentiation
+        theme.color = new_data.color
+        session.commit()
+        return theme
+    else:
+        raise HTTPException(404, f"kein ober-/unterpunkt mit id={id}")
+
 @app.post("/api/grade")
 def save_grade(gr: GradeInput, session: Session = Depends(get_session)) -> GradeOutput:
     new_gr = Grade.from_orm(gr)

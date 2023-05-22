@@ -33,6 +33,7 @@ class Grade(GradeInput, table=True):
 class ThemeInput(SQLModel):
     theme: str
     differentiation: str
+    color: Optional[str]
 
 class Theme(ThemeInput, table=True):
     id: Optional[uuid_pkg.UUID] = Field(default_factory=uuid_pkg.uuid4, primary_key=True)
