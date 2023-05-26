@@ -9,18 +9,18 @@ import uvicorn
 from db import engine, get_session
 from schemas import GutachtenInput, GutachenOutput, Gutachten, Theme, ThemeInput, ThemeOutput, GradeInput, GradeOutput, Grade
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    SQLModel.metadata.create_all(engine)
-    yield
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     SQLModel.metadata.create_all(engine)
+#     yield
 
-app = FastAPI(title="Gutachten Backend", lifespan=lifespan)
+app = FastAPI(title="Gutachten Backend")# , lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     # allow_origins=[settings.client_origin_url],
-    allow_methods=["GET", "POST", "PUT"], 
+    allow_methods=["GET", "POST", "PUT", "DELETE"], 
     allow_headers=["*"],
     # allow_headers=["Authorization", "Content-Type"],
     max_age=86400,
@@ -82,6 +82,15 @@ def update_theme_by_id(theme_id: str, new_data: ThemeInput, session: Session = D
         return theme
     else:
         raise HTTPException(404, f"kein ober-/unterpunkt mit id={id}")
+
+@app.delete("/api/theme/{theme_id}", status_code=204)
+def delete_theme_by_id(theme_id: str, session: Session = Depends(get_session)):
+    theme = session.get(Theme, theme_id)
+    if theme:
+        session.delete(theme)
+        session.commit()
+    else:
+        raise HTTPException(404, f"no theme with id={theme_id}")
 
 @app.post("/api/grade")
 def save_grade(gr: GradeInput, session: Session = Depends(get_session)) -> GradeOutput:

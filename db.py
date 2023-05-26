@@ -1,7 +1,7 @@
 from sqlmodel import create_engine, Session
 
 engine = create_engine(
-    "sqlite:///gutachten.db",
+    "sqlite:///gutachten.db?check_same_thread=False",
     echo=True # creates logging output
 )
 
