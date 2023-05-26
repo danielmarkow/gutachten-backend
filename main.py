@@ -92,13 +92,11 @@ def delete_theme_by_id(theme_id: str, session: Session = Depends(get_session)):
     else:
         raise HTTPException(404, f"no theme with id={theme_id}")
 
-@app.post("/api/grade")
-def save_grade(gr: GradeInput, session: Session = Depends(get_session)) -> GradeOutput:
-    new_gr = Grade.from_orm(gr)
-    session.add(new_gr)
+@app.post("/api/grade", status_code=204)
+def save_grade(gr: List[GradeInput], session: Session = Depends(get_session)):
+    new_gr = [grade.dict() for grade in gr]
+    session.bulk_insert_mappings(Grade, new_gr)
     session.commit()
-    session.refresh(new_gr)
-    return new_gr
 
 
 if __name__ == "__main__":
