@@ -1,3 +1,8 @@
+import secure
+
+from dotenv import load_dotenv
+load_dotenv()
+
 from contextlib import asynccontextmanager
 from typing import List
 
@@ -8,13 +13,34 @@ import uvicorn
 
 from db import engine, get_session
 from schemas import GutachtenInput, GutachenOutput, Gutachten, Theme, ThemeInput, ThemeOutput, GradeInput, GradeOutput, Grade
+from validate import validate
 
 # @asynccontextmanager
 # async def lifespan(app: FastAPI):
 #     SQLModel.metadata.create_all(engine)
 #     yield
 
-app = FastAPI(title="Gutachten Backend")# , lifespan=lifespan)
+app = FastAPI(title="Gutachten Backend", openapi_url=None)# , lifespan=lifespan)
+
+csp = secure.ContentSecurityPolicy().default_src("'self'").frame_ancestors("'none'")
+hsts = secure.StrictTransportSecurity().max_age(31536000).include_subdomains()
+referrer = secure.ReferrerPolicy().no_referrer()
+cache_value = secure.CacheControl().no_cache().no_store().max_age(0).must_revalidate()
+x_frame_options = secure.XFrameOptions().deny()
+
+secure_headers = secure.Secure(
+    csp=csp,
+    hsts=hsts,
+    referrer=referrer,
+    cache=cache_value,
+    xfo=x_frame_options,
+)
+
+@app.middleware("http")
+async def set_secure_headers(request, call_next):
+    response = await call_next(request)
+    secure_headers.framework.fastapi(response)
+    return response
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,8 +52,9 @@ app.add_middleware(
     max_age=86400,
 )
 
-@app.get("/api/gutachten/")
-def get_gutachten(session: Session = Depends(get_session)) -> list[GutachenOutput]:
+@app.get("/api/gutachten")
+def get_gutachten(auth_payload = Depends(validate), session: Session = Depends(get_session)) -> list[GutachenOutput]:
+    # print(auth_payload.get("sub"))
     query = select(Gutachten)
     return session.exec(query).all()
 
@@ -105,4 +132,4 @@ def update_grade(gr: List[GradeOutput], session: Session = Depends(get_session))
     session.commit()
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("main:app", reload=True, server_header=False)
