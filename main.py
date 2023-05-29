@@ -98,6 +98,11 @@ def save_grade(gr: List[GradeInput], session: Session = Depends(get_session)):
     session.bulk_insert_mappings(Grade, new_gr)
     session.commit()
 
+@app.put("/api/grade", status_code=204)
+def update_grade(gr: List[GradeOutput], session: Session = Depends(get_session)):
+    updated_gr = [grade.dict() for grade in gr]
+    session.bulk_update_mappings(Grade, updated_gr)
+    session.commit()
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
