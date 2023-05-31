@@ -16,6 +16,8 @@ from db import engine, get_session
 from schemas import GutachtenInput, GutachenOutput, Gutachten, Theme, ThemeInput, ThemeOutput, GradeInput, GradeOutput, Grade
 from validate import validate
 
+from config import settings
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     SQLModel.metadata.create_all(engine)
@@ -45,10 +47,8 @@ async def set_secure_headers(request, call_next):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    # allow_origins=[settings.client_origin_url],
+    allow_origins=[settings.client_origin_url],
     allow_methods=["GET", "POST", "PUT", "DELETE"], 
-    # allow_headers=["*"],
     allow_headers=["Authorization", "Content-Type"],
     max_age=86400,
 )
@@ -135,4 +135,10 @@ def update_grade(gr: List[GradeOutput], auth_payload = Depends(validate), sessio
     session.commit()
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True, server_header=False)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        server_header=False, 
+        port=settings.port,
+        reload=settings.reload
+    )
