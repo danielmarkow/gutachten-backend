@@ -116,6 +116,7 @@ def update_theme_by_id(theme_id: str, new_data: ThemeInput, auth_payload = Depen
 def delete_theme_by_id(theme_id: str, auth_payload = Depends(validate), session: Session = Depends(get_session)):
     query = select(Theme).where(Theme.id == theme_id).where(Theme.user_id == auth_payload.get("sub"))
     theme = session.exec(query).all()
+    
     if theme:
         session.delete(theme[0])
         session.commit()

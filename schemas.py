@@ -31,7 +31,7 @@ class GradeOutput(GradeInput):
 class Grade(GradeInput, table=True):
     id: Optional[uuid_pkg.UUID] = Field(default_factory=uuid_pkg.uuid4, primary_key=True)
     theme_id: uuid_pkg.UUID = Field(foreign_key="theme.id")
-    theme: "Theme" = Relationship(back_populates="grades")
+    theme: "Theme" = Relationship(back_populates="grades", sa_relationship_kwargs={"cascade": "delete"})
     user_id: str = Field(index=True)
 
 class ThemeInput(SQLModel):
@@ -42,7 +42,7 @@ class ThemeInput(SQLModel):
 
 class Theme(ThemeInput, table=True):
     id: Optional[uuid_pkg.UUID] = Field(default_factory=uuid_pkg.uuid4, primary_key=True)
-    grades: List["Grade"] = Relationship(back_populates="theme")
+    grades: List["Grade"] = Relationship(back_populates="theme", sa_relationship_kwargs={"cascade": "delete"})
     user_id: str = Field(index=True)
 
 class ThemeOutput(ThemeInput):
