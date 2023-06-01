@@ -13,7 +13,7 @@ import uvicorn
 from pydantic import create_model
 
 from db import engine, get_session
-from schemas import GutachtenInput, GutachenOutput, Gutachten, Theme, ThemeInput, ThemeOutput, GradeInput, GradeOutput, Grade
+from schemas import GutachtenInput, GutachtenOutput, Gutachten, Theme, ThemeInput, ThemeOutput, GradeInput, GradeOutput, Grade
 from validate import validate
 
 from config import settings
@@ -54,7 +54,7 @@ app.add_middleware(
 )
 
 @app.get("/api/gutachten")
-def get_gutachten(auth_payload = Depends(validate), session: Session = Depends(get_session)) -> list[GutachenOutput]:
+def get_gutachten(auth_payload = Depends(validate), session: Session = Depends(get_session)) -> list[GutachtenOutput]:
     query = select(Gutachten).where(Gutachten.user_id == auth_payload.get("sub"))
     return session.exec(query).all()
 
@@ -68,7 +68,7 @@ def get_gutachten_by_id(ga_id: str, auth_payload = Depends(validate), session: S
         raise HTTPException(404, f"kein gutachen mit id={id}")
 
 @app.post("/api/gutachten")
-def save_gutachten(ga: GutachtenInput, auth_payload = Depends(validate), session: Session = Depends(get_session)) -> GutachenOutput:
+def save_gutachten(ga: GutachtenInput, auth_payload = Depends(validate), session: Session = Depends(get_session)) -> GutachtenOutput:
     new_ga = Gutachten.from_orm(ga)
     session.add(new_ga)
     session.commit()
@@ -76,7 +76,7 @@ def save_gutachten(ga: GutachtenInput, auth_payload = Depends(validate), session
     return new_ga
 
 @app.put("/api/gutachten/{ga_id}")
-def update_gutachten_by_id(ga_id: str, new_data: GutachtenInput, auth_payload = Depends(validate), session: Session = Depends(get_session)) -> GutachenOutput:
+def update_gutachten_by_id(ga_id: str, new_data: GutachtenInput, auth_payload = Depends(validate), session: Session = Depends(get_session)) -> GutachtenOutput:
     query = select(Gutachten).where(Gutachten.id == ga_id).where(Gutachten.user_id == auth_payload.get("sub"))
     gutachten = session.exec(query).first()
     if gutachten:
@@ -85,6 +85,16 @@ def update_gutachten_by_id(ga_id: str, new_data: GutachtenInput, auth_payload = 
         return gutachten
     else: 
         raise HTTPException(404, f"kein gutachten mit id={id}")
+
+@app.delete("/api/gutachten/{ga_id}", status_code=204)
+def delete_gutachten(ga_id: str, auth_payload = Depends(validate), session: Session = Depends(get_session)):
+    query = select(Gutachten).where(Gutachten.id == ga_id).where(Gutachten.user_id == auth_payload.get("sub"))
+    gutachten = session.exec(query).first()
+    if gutachten:
+        session.delete(gutachten)
+        session.commit()
+    else:
+        raise HTTPException(404, f"kein gutachten mit id={ga_id}")
 
 @app.get("/api/theme")
 def get_theme(auth_payload = Depends(validate), session: Session = Depends(get_session)) -> List[ThemeOutput]:

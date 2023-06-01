@@ -7,7 +7,7 @@ class GutachtenInput(SQLModel):
     description: Optional[str]
     user_id: str
 
-class GutachenOutput(GutachtenInput):
+class GutachtenOutput(GutachtenInput):
     id: uuid_pkg.UUID
     ga: dict
     description: Optional[str]
