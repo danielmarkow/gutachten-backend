@@ -10,7 +10,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel, Session, select
 import uvicorn
-from pydantic import create_model
+# from pydantic import create_model
 
 from db import engine, get_session
 from schemas import GutachtenInput, GutachtenOutput, Gutachten, Theme, ThemeInput, ThemeOutput, GradeInput, GradeOutput, Grade
@@ -98,7 +98,7 @@ def delete_gutachten(ga_id: str, auth_payload = Depends(validate), session: Sess
 
 @app.get("/api/theme")
 def get_theme(auth_payload = Depends(validate), session: Session = Depends(get_session)) -> List[ThemeOutput]:
-    query = select(Theme).where(Theme.user_id == auth_payload.get("sub"))
+    query = select(Theme).where(Theme.user_id == auth_payload.get("sub")).order_by(Theme.color)
     return session.exec(query).all()
 
 @app.post("/api/theme")
