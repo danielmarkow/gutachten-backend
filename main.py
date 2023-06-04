@@ -1,8 +1,5 @@
 import secure
 
-from dotenv import load_dotenv
-load_dotenv()
-
 from contextlib import asynccontextmanager
 from typing import List
 
@@ -10,7 +7,6 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel, Session, select
 import uvicorn
-# from pydantic import create_model
 
 from db import engine, get_session
 from schemas import GutachtenInput, GutachtenOutput, Gutachten, Theme, ThemeInput, ThemeOutput, GradeInput, GradeOutput, Grade

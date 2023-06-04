@@ -1,7 +1,8 @@
+from config import settings
 from sqlmodel import create_engine, Session
 
 engine = create_engine(
-    "sqlite:///gutachten.db?check_same_thread=False",
+    settings.database_url,
     echo=True # creates logging output
 )
 

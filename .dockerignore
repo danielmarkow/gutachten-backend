@@ -2,3 +2,4 @@ fly.toml
 __pycache___
 venv
 .env.example
+.env
