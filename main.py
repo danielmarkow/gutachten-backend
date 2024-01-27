@@ -65,7 +65,7 @@ def get_gutachten_by_id(ga_id: str, auth_payload = Depends(validate), session: S
 
 @app.post("/api/gutachten")
 def save_gutachten(ga: GutachtenInput, auth_payload = Depends(validate), session: Session = Depends(get_session)) -> GutachtenOutput:
-    new_ga = Gutachten.from_orm(ga)
+    new_ga = Gutachten.model_validate(ga)
     session.add(new_ga)
     session.commit()
     session.refresh(new_ga)
@@ -99,7 +99,7 @@ def get_theme(auth_payload = Depends(validate), session: Session = Depends(get_s
 
 @app.post("/api/theme")
 def save_theme(th: ThemeInput, auth_payload = Depends(validate), session: Session = Depends(get_session)) -> ThemeOutput:
-    new_th = Theme.from_orm(th)
+    new_th = Theme.model_validate(th)
     session.add(new_th)
     session.commit()
     session.refresh(new_th)
@@ -131,13 +131,13 @@ def delete_theme_by_id(theme_id: str, auth_payload = Depends(validate), session:
 
 @app.post("/api/grade", status_code=204)
 def save_grade(gr: List[GradeInput], auth_payload = Depends(validate), session: Session = Depends(get_session)):
-    new_gr = [grade.dict() for grade in gr]
+    new_gr = [grade.model_dump() for grade in gr]
     session.bulk_insert_mappings(Grade, new_gr)
     session.commit()
 
 @app.put("/api/grade", status_code=204)
 def update_grade(gr: List[GradeOutput], auth_payload = Depends(validate), session: Session = Depends(get_session)):
-    updated_gr = [grade.dict() for grade in gr]
+    updated_gr = [grade.model_dump() for grade in gr]
     session.bulk_update_mappings(Grade, updated_gr)
     session.commit()
 
