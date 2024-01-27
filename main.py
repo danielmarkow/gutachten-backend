@@ -48,7 +48,7 @@ async def set_secure_headers(request, call_next):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.client_origin_url, "https://gutachten-generator-vite.vercel.app"],
+    allow_origins=[settings.client_origin_url],
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
     max_age=86400,
