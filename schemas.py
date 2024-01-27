@@ -12,7 +12,7 @@ class GutachtenInput(SQLModel):
 class GutachtenOutput(GutachtenInput):
     id: uuid_pkg.UUID
     ga: dict
-    description: Optional[str]
+    description: Optional[str] = None
 
 
 class Gutachten(GutachtenInput, table=True):
@@ -44,7 +44,7 @@ class Grade(GradeInput, table=True):
 class ThemeInput(SQLModel):
     theme: str
     differentiation: str
-    color: Optional[str]
+    color: Optional[str] = None
     user_id: str
 
 
